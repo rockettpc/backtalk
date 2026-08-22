@@ -1,6 +1,7 @@
 # backtalk
 
-> **Google Antigravity CLI (`agy`) Edition**
+> **Google Antigravity CLI (`agy`) Edition**  
+> *Forked and migrated to Google Antigravity CLI by [@rockettpc](https://github.com/rockettpc). Original backtalk voice loop created by **Jared Rhodenizer** ([@jaredrhod](https://github.com/jaredrhod/backtalk)).*
 
 **Runs on:** Google Antigravity CLI (`agy`). The voice connects to your local `agy` session using asynchronous streaming.
 
@@ -61,9 +62,11 @@ backtalk writes state files while it listens, thinks, and speaks:
 - **[ai-visualizer](https://github.com/rockettpc/ai-visualizer)**: four full-screen visualizers including the living circuit board.
 - **[barehands](https://github.com/rockettpc/barehands)**: on-screen ring and gesture control.
 
-## Credits
+## Credits and Attribution
 
-Speech recognition by [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (MIT) running [OpenAI Whisper](https://github.com/openai/whisper) models (MIT). Voice by [Kokoro](https://github.com/hexgrad/kokoro) (Apache 2.0) with [espeak-ng](https://github.com/espeak-ng/espeak-ng) (GPL-3.0) for phonemization. Powered by Google Antigravity CLI (`agy`).
+- **Original Author:** **Jared Rhodenizer** ([@jaredrhod](https://github.com/jaredrhod/backtalk)).
+- **Antigravity CLI Port:** Maintained by [@rockettpc](https://github.com/rockettpc).
+- **Libraries & Models:** Speech recognition by [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (MIT) running [OpenAI Whisper](https://github.com/openai/whisper) models (MIT). Voice by [Kokoro](https://github.com/hexgrad/kokoro) (Apache 2.0) with [espeak-ng](https://github.com/espeak-ng/espeak-ng) (GPL-3.0) for phonemization. Powered by Google Antigravity CLI (`agy`).
 
 ## License
 
