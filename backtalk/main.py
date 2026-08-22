@@ -925,11 +925,15 @@ async def amain():
         press_fut: asyncio.Future | None = None
         mic_fut: asyncio.Future | None = None
         mic_gen_seen = _MIC["gen"]
-        # The open mic yields while the BUTTON records (or the double
-        # capture would turn one held utterance into two turns), and,
-        # without barge-in, while the mouth speaks.
-        mic_gate = (lambda: _MIC["btn"]
-                    or (not barge_in and mouth.speaking))
+        # The open mic yields while the BUTTON records, and while the
+        # mouth speaks OR the brain is thinking (speak_task active).
+        def mic_gate():
+            return _MIC["btn"] or (
+                not barge_in and (
+                    mouth.speaking
+                    or (speak_task is not None and not speak_task.done())
+                )
+            )
         mic_fails = 0
         while True:
             if _MIC["gen"] != mic_gen_seen:
