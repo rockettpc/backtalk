@@ -198,9 +198,19 @@ def _full_detail(tool, tool_input, ctx):
     return f"use {name}" + (f", {desc[:70]}" if desc else "")
 
 
+class PermissionResultAllow:
+    def __init__(self, behavior="allow"):
+        self.behavior = behavior
+
+
+class PermissionResultDeny:
+    def __init__(self, behavior="deny", message="", interrupt=False):
+        self.behavior = behavior
+        self.message = message
+        self.interrupt = interrupt
+
+
 def make_permission_gate(mouth):
-    from claude_agent_sdk import (PermissionResultAllow,
-                                  PermissionResultDeny)
 
     async def gate(tool, tool_input, ctx):
         if _AUTOAPPROVE["on"]:
@@ -667,10 +677,10 @@ async def amain():
                 else f"failed: {e!r}"[:220])
         log(f"[backtalk] BRAIN CONNECT {kind}")
         mouth.say("Bad news. The voice and the face are fine, but I "
-                  "couldn't reach my brain, the Claude Code session. "
+                  "couldn't reach my brain, the Antigravity CLI session. "
                   "Check this window for the error. The usual causes: "
-                  "Claude Code isn't signed in, the internet is down, "
-                  "or the plan is out of usage.")
+                  "Antigravity CLI isn't signed in, the internet is down, "
+                  "or the model quota is exhausted.")
         mouth.wait_done(timeout=30)
         raise SystemExit(1)
     log("[backtalk] brain warm")

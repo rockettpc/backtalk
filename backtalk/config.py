@@ -1,4 +1,4 @@
-# backtalk: talk to your Claude Code agent out loud.
+# backtalk: talk to your Google Antigravity agent out loud.
 # Copyright (C) 2026 Jared Rhodenizer
 #
 # This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 """Configuration — backtalk.json in the repo root, merged over defaults.
 
 backtalk deliberately owns NO personality. Your agent's identity lives in
-the CLAUDE.md of whatever folder `agent_dir` points at — backtalk just
+the GEMINI.md / AGENTS.md of whatever folder `agent_dir` points at — backtalk just
 gives that agent a mouth and ears. The only voice-related instruction it
 adds is the spoken-delivery discipline below, which is about the MEDIUM
 (writing for the ear), never the character.
@@ -31,45 +31,26 @@ REPO = Path(__file__).resolve().parent.parent
 CONFIG_PATH = REPO / "backtalk.json"
 
 DEFAULTS = {
-    # The folder whose CLAUDE.md defines WHO your agent is. The voice
+    # The folder whose GEMINI.md / AGENTS.md defines WHO your agent is. The voice
     # session runs there, so it's the same assistant as your terminal
     # sessions — same name, same personality, same memory.
     "agent_dir": "~",
     # Display name, used in logs and to build the quit phrases
     # ("goodbye <name>" hangs up). Match your agent's actual name.
     "name": "Assistant",
-    # The brain. Full model id ON PURPOSE — never a bare alias like
-    # "sonnet": the SDK resolves aliases through its own bundled CLI and
-    # can silently land on an older model. The fast tier is most of the
-    # speed difference people ask about; a deep-work model makes every
-    # reply noticeably slower and burns usage doing it.
-    "model": "claude-sonnet-5",
+    # The brain model. Empty string uses Antigravity's default model.
+    # Specify explicit model if desired (e.g. gemini-2.5-flash).
+    "model": "",
     # The deep-work model for the voice console's "switch to the deep
     # model" command ("back to the fast model" returns to "model"
-    # above). Full id ON PURPOSE, same reasoning as "model". The switch
-    # lasts one session and is always spoken; this default never moves
-    # by itself.
-    "deep_model": "claude-opus-5",
-    # Tool permissions for the voice session. "ask" is the default ON
-    # PURPOSE (safety is opt-out, never opt-in): when the agent wants a
-    # gated tool (write a file, run a real command), it ASKS OUT LOUD
-    # and waits. Answer by voice or by typing. An EXACT yes approves
-    # ("yes", "yeah", "go ahead", "approved"...); anything else denies,
-    # and your words are passed back to the agent as the reason, so
-    # "no, put it in drafts instead" actually steers it. No answer
-    # within 75 seconds means no, out loud. Most read-only work passes
-    # without asking; anything that changes things asks.
-    # "bypassPermissions" is AUTO-APPROVE: the agent acts without
-    # asking, exactly like a terminal session with approvals off.
-    # (Not to be confused with hands-free LISTENING, which is about
-    # the microphone: see mic_mode below.) Never hand-edit this file
-    # to switch: tell your agent to change it (takes effect next
-    # launch), or say "stop asking for permission" (then "confirm")
-    # or "start asking again" inside a voice session for an immediate
-    # flip that also saves. The legacy value "default" now
-    # behaves as "ask" (a headless voice session could never render
-    # the terminal prompt it promised).
-    "permission_mode": "ask",
+    # above).
+    "deep_model": "",
+    # Tool permissions for the voice session.
+    # "bypassPermissions" is AUTO-APPROVE: runs with --dangerously-skip-permissions.
+    # "ask" is interactive permission checks.
+    "permission_mode": "bypassPermissions",
+    # Whether to pass --dangerously-skip-permissions to agy.
+    "dangerously_skip_permissions": True,
     # Extra folders the agent may access beyond agent_dir (e.g. your
     # notes vault). Absolute paths or ~ paths.
     "extra_dirs": [],
@@ -89,22 +70,16 @@ DEFAULTS = {
     # forces "open" for one session.
     "mic_mode": "ptt",
     # Playback speed for the built-in voice: 1.0 is Kokoro's native
-    # pace, 1.15 is noticeably brisker, 0.9 is slower. Kokoro's own
-    # pipeline implements it, so quality holds across sane values
-    # (roughly 0.7 to 1.5). ElevenLabs pace lives in the master chain's
-    # atempo instead. (Grew out of a community proposal, issue #1.)
+    # pace, 1.15 is noticeably brisker, 0.9 is slower.
     "speed": 1.0,
     # Resume the previous conversation on launch. OFF by default: a
     # fresh session every launch is the predictable behavior. Set true
     # and backtalk saves the session id after every completed turn
     # (signals_dir/.backtalk_session) and reattaches to it at the next
-    # launch, so killing the window stops costing you the conversation.
-    # A resume that fails falls back to a fresh session and says so in
-    # the log. (Grew out of the same community proposal, issue #1.)
+    # launch.
     "resume_last_session": False,
     # Reasoning effort for the voice session: "" inherits the model's
-    # default; "low" / "medium" / "high" / "max" applies at launch.
-    # Saying "set effort to X" in a voice session saves itself here.
+    # default; "low" / "medium" / "high" applies at launch.
     "effort": "",
     # The voice (Kokoro, local, free). bm_lewis is the proven default —
     # British male, the butler register. Others: bm_george, bm_daniel,
@@ -122,18 +97,11 @@ DEFAULTS = {
     # Optional premium voice: ElevenLabs on YOUR key. The key NEVER
     # goes in a file: it's read from the macOS Keychain (item
     # `backtalk-elevenlabs`) or Linux secret-tool, with the
-    # ELEVENLABS_API_KEY env var as last-resort fallback — see
-    # mouth._get_elevenlabs_key for the seeding one-liners. Kokoro
-    # remains the automatic fallback, so the voice degrades instead of
-    # going mute if the cloud fails. Needs ffmpeg on the PATH.
+    # ELEVENLABS_API_KEY env var as last-resort fallback.
     "elevenlabs": {
         "enabled": False,
         "voice_id": "",
         "model": "eleven_turbo_v2_5",
-        # Local mastering: ElevenLabs' site previews are mastered demo
-        # clips and the raw API never matches them. This chain closes
-        # the gap: presence lift, light chest, broadcast compression,
-        # limiter. atempo is the one pace dial (1.0 = native).
         "master": ("atempo=1.12,highpass=f=70,"
                    "equalizer=f=3200:t=q:w=1.2:g=3.5,"
                    "equalizer=f=140:t=q:w=1:g=1.5,"
@@ -147,7 +115,6 @@ DEFAULTS = {
     # THE BAREHANDS SEAM: point this at a barehands checkout's state/
     # folder and its on-screen ring becomes your agent's face — it
     # breathes while idle, spins while thinking, pulses with the voice.
-    # (github.com/jaredrhod/barehands)
     "barehands_state_dir": "",
     # Sound played while the agent thinks, so a long pause never reads as
     # a dead line. The bundled one ships in assets/; a relative path
@@ -160,11 +127,11 @@ DEFAULTS = {
 
 # The spoken-delivery discipline — the MEDIUM half of what used to be a
 # persona. The CHARACTER half deliberately is not here: it's whatever
-# lives in the agent_dir's CLAUDE.md. One identity, one place.
+# lives in the agent_dir's GEMINI.md / AGENTS.md. One identity, one place.
 DISCIPLINE = (
     "VOICE SESSION (your reply is spoken aloud through a TTS engine, "
     "not displayed): you are SPEAKING, in your own voice and "
-    "personality — your CLAUDE.md is who you are. The TTS engine "
+    "personality — your GEMINI.md / AGENTS.md is who you are. The TTS engine "
     "PERFORMS your punctuation, so write like a performance, never "
     "like a memo: contractions always, punchy conversational "
     "sentences, and if a line could open a quarterly report, rewrite "
