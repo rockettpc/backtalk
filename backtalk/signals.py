@@ -65,6 +65,9 @@ def set_state(name: str):
     try:
         with open(_STATE_FILE, "w") as f:
             f.write(name)
+        if name != "speaking":
+            with open(_WAVEFORM_FILE, "w") as f:
+                f.write(json.dumps({"ts": 0, "samples": [0.0] * 64}))
     except OSError:
         pass
     if _BH_STATE:

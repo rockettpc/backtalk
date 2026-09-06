@@ -56,6 +56,7 @@ class WarmBrain:
         self._dirty = False
         self._proc: asyncio.subprocess.Process | None = None
         self.conversation_id: str | None = None
+        self._discipline_sent = False
 
     async def start(self):
         cmd = ["agy", "--input-format", "stream-json", "--output-format", "stream-json"]
@@ -228,7 +229,12 @@ class WarmBrain:
             await self.start()
 
         self._dirty = True
-        payload = json.dumps({"event": "user", "message": {"content": utterance}}) + "\n"
+        prompt = utterance
+        if not self._discipline_sent and not utterance.startswith("Warmup ping"):
+            prompt = f"[System directive for spoken voice session: {DISCIPLINE}]\n\nUser: {utterance}"
+            self._discipline_sent = True
+
+        payload = json.dumps({"event": "user", "message": {"content": prompt}}) + "\n"
         self._proc.stdin.write(payload.encode())
         await self._proc.stdin.drain()
 

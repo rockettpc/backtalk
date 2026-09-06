@@ -651,7 +651,7 @@ async def amain():
     log(f"[backtalk] up — agent={NAME} dir={CFG['agent_dir']} "
         f"model={brain.model} mic={mode} "
         f"(say 'goodbye {NAME.lower()}' to hang up)")
-    mouth.say(CFG["greeting"])
+    mouth.say_chunk(CFG["greeting"])
 
     loop = asyncio.get_event_loop()
     # Warm the engines while the greeting plays: the STT model load and
@@ -684,7 +684,8 @@ async def amain():
         mouth.wait_done(timeout=30)
         raise SystemExit(1)
     log("[backtalk] brain warm")
-    # the hidden warmup ping is plumbing, not conversation
+    # the hidden warmup ping is plumbing, not conversation — clear the session slate
+    await brain.command("/clear")
     brain.session.update(turns=0, out_tokens=0, in_tokens=0, cost=0.0)
     # a configured effort level applies at launch (saved by the spoken
     # "set effort to X", or written by the person's agent on request)
@@ -914,6 +915,10 @@ async def amain():
         return True
 
     try:
+        # Ensure the initial greeting has completely finished playing and room echo settles
+        mouth.wait_done(timeout=15)
+        await asyncio.sleep(0.4)
+
         # ONE loop, two mic modes, switchable live (_MIC). The talk key
         # is constructed and honored in BOTH modes: in hands-free
         # listening it is the interrupt and the guaranteed way to be

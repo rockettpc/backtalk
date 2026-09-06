@@ -110,6 +110,10 @@ class Ears:
                 if gate and gate():
                     # speakers are talking and barge-in isn't on: ignore
                     ring.clear()
+                    frames = []
+                    speech_run = 0
+                    silence_run = 0
+                    in_utterance = False
                     continue
                 is_speech = self.vad.is_speech(mono.tobytes(), RATE)
                 if not in_utterance:
@@ -144,12 +148,17 @@ def record_held(is_held, max_s: float = 60.0, min_s: float = 0.25) -> str | None
     """Hold-to-talk capture: record raw audio while is_held() is True,
     then transcribe. The button is the VAD — no endpointing. Returns
     None for taps shorter than min_s (accidental presses)."""
+    from backtalk import signals
     frames: list[np.ndarray] = []
+    signals.set_state("listening")
     with sd.InputStream(samplerate=RATE, channels=1, dtype="int16",
                         blocksize=FRAME_LEN) as stream:
         while is_held() and len(frames) * FRAME_MS / 1000 < max_s:
             block, _ = stream.read(FRAME_LEN)
-            frames.append(block[:, 0].copy())
+            mono = block[:, 0].copy()
+            frames.append(mono)
+            if len(frames) % 10 == 0:
+                signals.set_state("listening")
         # a small tail so the last word isn't clipped at release
         for _ in range(6):
             block, _ = stream.read(FRAME_LEN)
