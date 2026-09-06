@@ -5,8 +5,8 @@ Written for humans AND for AI assistants. If you're an AI helping someone debug 
 ## Quick fixes
 
 - **The greeting speaks, then it goes idle and ignores the key (open mic too)**: the step right after the greeting is connecting to Antigravity CLI (`agy`), the brain. Check that `agy` is authenticated, internet is available, and `agy` runs normally from the terminal.
-- **`ModuleNotFoundError` at launch**: run `uv sync` from the backtalk folder to reinstall any missing dependencies.
 - **Nothing happens when I hold the key (macOS)**: the terminal app needs **Input Monitoring** permission: System Settings → Privacy & Security → Input Monitoring → add your terminal (Terminal, iTerm, etc.), then restart the terminal.
+- **Nothing happens when I hold the key outside the terminal (Linux / Wayland)**: global hotkey listening on Linux Wayland reads directly from `/dev/input/event*` devices. Add your user to the `input` group: `sudo usermod -aG input $USER`, then log out of your Linux desktop session and log back in.
 - **Mic permission never appeared / recording is silent**: launch from a normal terminal window, not a background service.
 - **It hears me but answers slowly**: check your network connection and model.
 - **First reply after launch is slow**: that's the one-time prompt-cache / model warmup toll. Subsequent turns stream immediately.
