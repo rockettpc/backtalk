@@ -56,7 +56,7 @@ DEFAULTS = {
     "extra_dirs": [],
     # Hold-to-talk key. Named keys ("home", "f13", "right_alt", ...)
     # or a single character.
-    "ptt_key": "home",
+    "ptt_key": "right_alt",
     # The microphone mode. "ptt" (push to talk, the default and the
     # recommendation): the mic is closed except while the key is held,
     # so room audio and your own speakers can never trigger the agent.
@@ -94,6 +94,13 @@ DEFAULTS = {
     # "auto" uses CUDA when present, otherwise CPU. int8 keeps CPU fast.
     "stt_device": "auto",
     "stt_compute": "int8",
+    # Optional cloud voice: OpenRouter GPT Audio streaming TTS.
+    "openrouter": {
+        "enabled": False,
+        "api_key": "",
+        "model": "openai/gpt-audio-mini",
+        "voice": "fable",
+    },
     # Optional premium voice: ElevenLabs on YOUR key. The key NEVER
     # goes in a file: it's read from the macOS Keychain (item
     # `backtalk-elevenlabs`) or Linux secret-tool, with the
@@ -161,7 +168,7 @@ def _expand(p: str) -> str:
 def load() -> dict:
     cfg = json.loads(json.dumps(DEFAULTS))          # deep copy
     try:
-        user = json.loads(CONFIG_PATH.read_text())
+        user = json.loads(CONFIG_PATH.read_text(encoding="utf-8-sig"))
         for k, v in user.items():
             if isinstance(v, dict) and isinstance(cfg.get(k), dict):
                 cfg[k].update(v)

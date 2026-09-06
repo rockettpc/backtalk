@@ -49,11 +49,13 @@ Windows setup runs through the wizard (`install.sh` and `run.sh` are Mac and Lin
 
 ## The voice
 
-Two engines, and the setup wizard offers you both:
+Three engines:
 
 **Built-in (Kokoro), the free one.** Local, offline, no accounts, no per-word costs. The default voice is `bm_lewis`, a British male butler register. Around 60 voices ship free; set `voice` in `backtalk.json`.
 
-**ElevenLabs, the natural one.** The human-sounding voice on your own API key. The wizard walks the whole thing with you.
+**OpenRouter TTS, the versatile cloud option.** OpenAI-compatible TTS endpoint via OpenRouter (`openai/tts-1`, `openai/tts-1-hd`, `openai/gpt-audio-mini`, etc.). Set your key in `OPENROUTER_API_KEY` or `backtalk.json`.
+
+**ElevenLabs, the ultra-natural one.** The human-sounding voice on your own API key. The wizard walks the whole thing with you.
 
 ## Give it a face (optional)
 
